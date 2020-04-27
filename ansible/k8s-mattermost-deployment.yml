@@ -1,0 +1,38 @@
+---
+-
+  name: Create mattermost pods using deployment
+  hosts: k8s
+  become_user: k8s-admin
+  become: true
+
+  tasks:
+    - name: Ensure new app image is used in k8s app-deployment.yaml
+      lineinfile:
+        path: /opt/docker/k8s/app-deployment.yaml
+        regexp: '\s*image:'
+        line: "        image: teamjupitergmu/mattermost-docker:app-1"
+
+    - name: Ensure new web image is used in k8s web-deployment.yaml
+      lineinfile:
+        path: /opt/docker/k8s/web-deployment.yaml
+        regexp: '\s*image:'
+        line: "        image: teamjupitergmu/mattermost-docker:web-1"
+
+    - name: Ensure new db image is used in k8s db-deployment.yaml
+      lineinfile:
+        path: /opt/docker/k8s/db-deployment.yaml
+        regexp: '\s*image:'
+        line: "        image: teamjupitergmu/mattermost-docker:db-1"
+
+    - name: Update current app deployment if app image is updated in docker registry
+      shell: kubectl apply -f app-deployment.yaml
+      args:
+        chdir: /opt/docker/k8s
+    - name: Update current web deployment if web image is updated in docker registry
+      shell: kubectl apply -f web-deployment.yaml
+      args:
+        chdir: /opt/docker/k8s
+    - name: Update current db deployment if db image is updated in docker registry
+      shell: kubectl apply -f db-deployment.yaml
+      args:
+        chdir: /opt/docker/k8s

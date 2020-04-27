@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mattermost-docker-web-deployment
+  labels:
+    app: mattermost-docker-web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mattermost-docker-web
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: mattermost-docker-web
+    spec:
+      containers:
+      - name: mattermost-docker-web
+        image: teamjupitergmu/mattermost-docker:web-39
+        ports:
+        - containerPort: 80
+#        - containerPort: 443
+        resources: {}
+        volumeMounts:
+        - mountPath: /cert
+          name: web-claim0
+          readOnly: true
+        - mountPath: /etc/localtime
+          name: web-claim1
+          readOnly: true
+      restartPolicy: Always
+      volumes:
+      - name: web-claim0
+        persistentVolumeClaim:
+          claimName: web-claim0
+          readOnly: true
+      - name: web-claim1
+        persistentVolumeClaim:
+          claimName: web-claim1
+          readOnly: true
+status: {}
